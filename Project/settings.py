@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'syakjs2*@+b-cpy0teowhqpstyu!8l^^r=h+%)p(^hf&=@g+un'
+SECRET_KEY = 'mr%9u&_#g!%d)1*2irhoc2nry@8%(3993n%8jqefo6pjn=thm9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'submit_reports',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -55,9 +56,11 @@ ROOT_URLCONF = 'Project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, "static", "templates"),
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
+            'debug': DEBUG,
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
@@ -119,3 +122,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 
 STATIC_URL = '/static/'
+
+LOGIN_URL = '/accounts/login/'
+
+#TEMPLATE_DEBUG = True
+if DEBUG:
+    MEDIA_URL = '/media/'
+    STATIC_ROOT = os.path.join(BASE_DIR, "static", "static-only")
+    MEDIA_ROOT = os.path.join(BASE_DIR, "static", "media")
+    STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, "static", "static"),
+    )
