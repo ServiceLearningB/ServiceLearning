@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<ul>
+	{% for SubmitReport in object_list %}
+	<li class="SubmitReport">{{ SubmitReport }}</li>
+	<p class="SubmitReport"><a href="{% url 'faculty_detail_view_page' SubmitReport.id %}">{{ SubmitReport }}</a></p>
+	{% endfor %}
+</ul>
+{% endblock%}

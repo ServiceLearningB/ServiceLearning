@@ -4,6 +4,7 @@ from .models import SubmitReport, Student, Faculty, Staff, Course
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.contrib import auth
 from django.views.generic.list import ListView
+from django.views.generic import DetailView
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required,user_passes_test, permission_required
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -31,15 +32,27 @@ def submit_page(request):
 
 class FacultyView(UserPassesTestMixin, ListView):
 	"""Page for faculty to view student records"""
-	model = Faculty
-	#form = FacultyQueryForm(request.POST or None)
+	model = SubmitReport
+	template_name = 'faculty_view.html'
+	paginate_by = 25
 
 	def get_queryset(self):
-		if form.is_valid():
-			return SubmitReport.objects.filter()
+		faculty = self.request.user.faculty
+		self.courses = faculty.course_set.all()
+		return SubmitReport.objects.filter(courses__in=self.courses).distinct()
 
 	def test_func(self):
-		return self.request.user.is_superuser or self.request.user.faculty is not None
+		return self.request.user.faculty is not None
+
+class FacultyDetailView(UserPassesTestMixin, ListView):
+	faculty = request.user.faculty
+	courses = faculty.course_set.all()
+	model = SubmitReport
+	queryset = SubmitReport.objects.filter(courses__in=self.courses).distinct()
+	template_name = 'faculty_detail_view.html'
+
+	def test_func(self):
+		return self.request.user.faculty is not None
 
 #Related to login
 ##############################################################
