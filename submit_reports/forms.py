@@ -32,3 +32,17 @@ class AddStudentForm(forms.ModelForm):
 	class Meta:
 		model = User
 		fields = ['username', 'password', 'first_name', 'last_name']
+
+class ReportSearchForm(forms.Form):
+	pk = forms.IntegerField(label='test', required=False)
+	first_name = forms.CharField(label='First Name', required=False)
+	last_name = forms.CharField(label='Last Name', required=False)
+
+	def filter_queryset(self, request, queryset):
+		if self.cleaned_data['pk']:
+			queryset.filter(pk==self.cleaned_data['pk'])
+		if self.cleaned_data['first_name']:
+			queryset.filter(user__first_name__icontains=self.cleaned_data['first_name'])
+		if self.cleaned_data['last_name']:
+			queryset.filter(user__last_name__icontains=self.cleaned_data['last_name'])
+

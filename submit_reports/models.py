@@ -40,7 +40,7 @@ ServiceType = (
 ########################################################
 class StudentManager(models.Manager):
 	def create_student_without_user(self, first_name, last_name, nuid, grad_year):
-		student = self.create(first_name=first_name, last_name=last_name, nuid=nuid, grad_year=grad_year)
+		student = self.create(first_name=first_name, last_name=last_name, grad_year=grad_year)
 		return student
 	
 	def create_student(self, user, nuid, grad_year):
@@ -51,17 +51,11 @@ class Student(models.Model):
 	objects= StudentManager()
 	numeric = RegexValidator(r'^[0-9]*$', 'only numbers allowed')
 	user = models.OneToOneField(User, null=True, unique=True, on_delete=models.SET_NULL)
-	first_name = models.CharField(max_length=30, null=True, blank=False)
-	last_name = models.CharField(max_length=30, null=True, blank=False)
-	nuid = models.IntegerField(null=False, blank=False, default=0)
 	courses = models.ManyToManyField('Course', related_name='students')
 	grad_year = models.CharField(validators=[numeric], max_length=4, null=True)
 
-	class Meta:
-		unique_together = ('nuid', 'user')
-
 	def __unicode__(self):
-		return self.user.first_name + " " + self.user.last_name + " (" + str(self.nuid) + ")"
+		return self.user.first_name + " " + self.user.last_name + "(" + self.user.email + ")"
 
 ##############################################################
 

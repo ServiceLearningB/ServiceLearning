@@ -23,16 +23,16 @@ admin.autodiscover()
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^admin/home', admin_home_view, name='admin_home_page'),
-    url(r'^admin/add_partner', add_partners_view, name='add_partners_page'),
-    url(r'^admin/add_student', add_student_view, name='add_student_page'),
-    url(r'^submit_report/', submit_page, name='submit_page'),
-    url(r'^accounts/login/', login_view, name='login_page'),
-    url(r'^accounts/auth/', auth_view, name='authorization_page'),
-    url(r'^accounts/logout/', logout_view, name='logout_page'),
-    url(r'^accounts/student_view/', student_logged_in_view, name='student_logged_in_page'),
-    url(r'^accounts/invalid/', invalid_login_view, name='invalid_login_page'),
-    url(r'^accounts/faculty_view', FacultyView.as_view(), name='faculty_view_page'),
+    url(r'^admin/home$', admin_home_view, name='admin_home_page'),
+    url(r'^admin/add_partner$', add_partners_view, name='add_partners_page'),
+    url(r'^admin/add_student$', add_student_view, name='add_student_page'),
+    url(r'^submit_report/$', submit_page, name='submit_page'),
+    url(r'^accounts/login/$', login_view, name='login_page'),
+    url(r'^accounts/auth/$', auth_view, name='authorization_page'),
+    url(r'^accounts/logout/$', logout_view, name='logout_page'),
+    url(r'^accounts/student_view/$', student_logged_in_view, name='student_logged_in_page'),
+    url(r'^accounts/invalid/$', invalid_login_view, name='invalid_login_page'),
+    url(r'^accounts/faculty_view/$', FacultyView.as_view(), name='faculty_view_page'),
     url(r'^accounts/faculty_detail_view/(?P<pk>\d+)$', FacultyDetailView.as_view(), name='faculty_detail_view_page')
 ]
 

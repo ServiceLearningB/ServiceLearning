@@ -1,14 +1,32 @@
 from django.shortcuts import render, render_to_response, RequestContext
-from .forms import SubmitReportForm, AddPartnerForm
+from .forms import *
 from .models import SubmitReport, Student, Faculty, Staff, Course
 from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.contrib import auth
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
+from django.views.generic.edit import FormMixin
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required,user_passes_test, permission_required
 from django.contrib.auth.mixins import UserPassesTestMixin
 # Create your views here.
+
+class FilteredListView(FormMixin, ListView):
+	def get_form_kwargs(self):
+		return {
+			'initial': self.get_initial(),
+			'prefix': self.get_prefix,
+			'data': self.request.GET or None
+		}
+
+	def get(self, request, *args, **kwargs):
+		self.object_list = self.get_queryset()
+		form = self.get_form(self.get_form_class())
+		if form.is_valid():
+			self.object_list = form.filter_queryset(request, self.object_list)
+
+		context = self.get_context_data(form=form, object_list=self.object_list)
+		return self.render_to_response(context)
 
 
 @login_required(redirect_field_name=None)
@@ -29,30 +47,34 @@ def submit_page(request):
 		locals(),
 		context_instance=RequestContext(request))
 
+######################################################################
 
-class FacultyView(UserPassesTestMixin, ListView):
+
+class FacultyView(UserPassesTestMixin, FilteredListView):
 	"""Page for faculty to view student records"""
-	model = SubmitReport
+	form_class = ReportSearchForm
 	template_name = 'faculty_view.html'
-	paginate_by = 25
+
+	def test_func(self):
+		return self.request.user.faculty is not None
 
 	def get_queryset(self):
 		faculty = self.request.user.faculty
 		self.courses = faculty.course_set.all()
 		return SubmitReport.objects.filter(courses__in=self.courses).distinct()
 
-	def test_func(self):
-		return self.request.user.faculty is not None
-
 class FacultyDetailView(UserPassesTestMixin, ListView):
-	faculty = request.user.faculty
-	courses = faculty.course_set.all()
-	model = SubmitReport
-	queryset = SubmitReport.objects.filter(courses__in=self.courses).distinct()
+	
 	template_name = 'faculty_detail_view.html'
 
+	def get_queryset(self):
+		faculty = self.request.user.faculty
+		courses = faculty.course_set.all()
+		queryset = SubmitReport.objects.filter(courses__in=courses).distinct()
+
 	def test_func(self):
 		return self.request.user.faculty is not None
+
 
 #Related to login
 ##############################################################
@@ -71,7 +93,10 @@ def auth_view(request):
 	user = auth.authenticate(username=username, password=password)
 	if user is not None:
 		auth.login(request, user)
-		return HttpResponseRedirect('/accounts/loggedin/')
+	if user.student is not None:
+		return HttpResponseRedirect('/accounts/student_view/')
+	if user.faculty is not None:
+		return HttpResponseRedirect('/accounts/faculty_view/')
 	else:
 		return HttpResponseRedirect('/accounts/invalid/')
 
