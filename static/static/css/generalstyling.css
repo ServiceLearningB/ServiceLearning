@@ -12,6 +12,20 @@
 	border-color:rgb(160,160,145);
 }
 
+.EZ_icon {
+	
+}
+
+.EZ_iconcontainer {
+	width:15%;
+	position: relative;
+	float:left;
+}
+
+.EZ_loginfield {
+	width: 80%;
+}
+
 .EZ_col {
 	position: relative;
 	float: left;
