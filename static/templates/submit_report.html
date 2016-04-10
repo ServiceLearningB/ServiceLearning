@@ -2,13 +2,10 @@
 
 {% block content %}
 
-<center>
 <h1>Submit Hours Report</h1>
 <form method='POST' action=''>
 	{% csrf_token %}
 	{{form.as_p}}
 	<input type='submit' value="Save Report", action="">
 </form>
-</center>
-
 {% endblock %}

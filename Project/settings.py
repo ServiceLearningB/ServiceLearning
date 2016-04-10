@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'submit_reports',
     'pandas',
+    'bootstrap3',
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -100,7 +100,7 @@ class SubmitReport(models.Model):
 	start_time = models.DateTimeField(auto_now_add=False, auto_now=False, default=datetime.now)
 	end_time = models.DateTimeField(auto_now_add=False, auto_now=False, default=datetime.now)
 	courses = models.ManyToManyField('Course')
-	service_type = models.CharField(max_length=14, null=True, blank=False, choices=ServiceType)
+	service_type = models.CharField(max_length=14, null=True, blank=False, choices=ServiceType, default='default')
 	status = models.CharField(max_length=8, choices=ApprovalStatus, default='PENDING', null=False, blank=False)
 	summary = models.CharField(max_length=150, null=True, blank=True)
 	submitter = models.ForeignKey(Student, null=True, on_delete=models.PROTECT)

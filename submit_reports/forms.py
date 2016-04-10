@@ -1,11 +1,13 @@
 from django import forms
 from django.forms import MultipleChoiceField
-from django.forms import Textarea, ModelForm, widgets, RadioSelect
+from django.forms import Textarea, ModelForm, widgets, RadioSelect, CheckboxSelectMultiple
 from .models import SubmitReport, Partner
 from django.db import models
 from django.contrib.auth.models import User
 
 class SubmitReportForm(forms.ModelForm):
+	error_css_class = 'error'
+	required_css_class = 'required'
 	class Meta:
 		model = SubmitReport
 		fields = ['start_time', 'end_time', 'courses', 'service_type', 'summary']
@@ -13,6 +15,7 @@ class SubmitReportForm(forms.ModelForm):
 		widgets = {
 			'summary': Textarea(attrs={'cols': 50, 'rows': 3}),
 			'service_type': RadioSelect(),
+			'courses': CheckboxSelectMultiple(),
 		}
 
 		def clean(self):
@@ -35,15 +38,17 @@ class AddStudentForm(forms.ModelForm):
 		fields = ['username', 'password', 'first_name', 'last_name']
 
 class ReportSearchForm(forms.Form):
-	pk = forms.IntegerField(label='test', required=False)
 	first_name = forms.CharField(label='First Name', required=False)
 	last_name = forms.CharField(label='Last Name', required=False)
 
 	def filter_queryset(self, request, queryset):
-		if self.cleaned_data['pk']:
-			queryset.filter(pk==self.cleaned_data['pk'])
+		temp = queryset
 		if self.cleaned_data['first_name']:
-			queryset.filter(user__first_name__icontains=self.cleaned_data['first_name'])
+			temp = temp.filter(first_name__icontains=self.cleaned_data['first_name'])
+			print queryset
 		if self.cleaned_data['last_name']:
-			queryset.filter(user__last_name__icontains=self.cleaned_data['last_name'])
-
+			temp = temp.filter(last_name__icontains=self.cleaned_data['last_name'])
+		if not temp:
+			return queryset
+		else:
+			return temp
