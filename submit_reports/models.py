@@ -95,7 +95,8 @@ class AdminStaff(models.Model):
 ######################################################
 
 class SubmitReport(models.Model):
-
+	first_name = models.CharField(max_length=30)
+	last_name = models.CharField(max_length=30)
 	start_time = models.DateTimeField(auto_now_add=False, auto_now=False, default=datetime.now)
 	end_time = models.DateTimeField(auto_now_add=False, auto_now=False, default=datetime.now)
 	courses = models.ManyToManyField('Course')

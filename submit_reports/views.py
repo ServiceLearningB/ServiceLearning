@@ -1,7 +1,8 @@
-from django.shortcuts import render, render_to_response, RequestContext
+from django.shortcuts import render, render, RequestContext
 from .forms import *
+import datetime
 from .models import SubmitReport, Student, Faculty, Staff, Course
-from django.http import HttpResponseRedirect, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponsePermanentRedirect
 from django.contrib import auth
 from django.views.generic.list import ListView
 from django.views.generic import DetailView
@@ -9,6 +10,7 @@ from django.views.generic.edit import FormMixin
 from django.template.context_processors import csrf
 from django.contrib.auth.decorators import login_required,user_passes_test, permission_required
 from django.contrib.auth.mixins import UserPassesTestMixin
+import pandas as pd
 # Create your views here.
 
 class FilteredListView(FormMixin, ListView):
@@ -26,7 +28,7 @@ class FilteredListView(FormMixin, ListView):
 			self.object_list = form.filter_queryset(request, self.object_list)
 
 		context = self.get_context_data(form=form, object_list=self.object_list)
-		return self.render_to_response(context)
+		return self.render(context)
 
 
 @login_required(redirect_field_name=None)
@@ -39,19 +41,21 @@ def submit_page(request):
 	form.fields['courses'].queryset = Course.objects.filter(students__in=[student])
 	if form.is_valid():
 		save_form = form.save(commit=False)
-		save_form.submitter=student
+		save_form.submitter = student
+		save_form.first_name = student.user.first_name
+		save_form.last_name = student.user.last_name
 		save_form.save()
 		save_form.save_m2m()
 		return HttpResponseRedirect('student_logged_in_page')
-	return render_to_response("submit_report.html",
+	return render("submit_report.html",
 		locals(),
 		context_instance=RequestContext(request))
 
 ######################################################################
 
-
+"""
 class FacultyView(UserPassesTestMixin, FilteredListView):
-	"""Page for faculty to view student records"""
+	Page for faculty to view student records
 	form_class = ReportSearchForm
 	template_name = 'faculty_view.html'
 
@@ -62,6 +66,27 @@ class FacultyView(UserPassesTestMixin, FilteredListView):
 		faculty = self.request.user.faculty
 		self.courses = faculty.course_set.all()
 		return SubmitReport.objects.filter(courses__in=self.courses).distinct()
+"""
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.faculty is not None)
+def faculty_view(request):
+
+	def readable_datetime(datetime):
+		return datetime.strftime("%-I:%M%p %b %d, %Y")
+
+	courses = request.user.faculty.course_set.all()
+	df = pd.DataFrame(list(SubmitReport.objects.filter(courses__in=courses).distinct().values(
+		'first_name', 'last_name', 'start_time', 'end_time', 'summary')))
+	return HttpResponse(df.to_html(escape=False, index=False,
+		columns=['first_name', 'last_name', 'start_time', 'end_time', 'summary'],
+		formatters={
+			'summary': (lambda s: '<abbr title=\"' + s + '\">Summary</abbr>'),
+			'submitter': (lambda s: Student.objects.get(pk=s).__unicode__()),
+			'start_time': (lambda s: readable_datetime(s)),
+			'end_time': (lambda s: readable_datetime(s)),
+		}))
+
 
 class FacultyDetailView(UserPassesTestMixin, ListView):
 	
@@ -83,7 +108,7 @@ def login_view(request):
 	"""Page for logging in"""
 	c = {}
 	c.update(csrf(request))
-	return render_to_response('login.html', c)
+	return render('login.html', c)
 
 
 def auth_view(request):
@@ -92,11 +117,12 @@ def auth_view(request):
 	password = request.POST.get('password', '')
 	user = auth.authenticate(username=username, password=password)
 	if user is not None:
-		auth.login(request, user)
-	if user.student is not None:
-		return HttpResponseRedirect('/accounts/student_view/')
-	if user.faculty is not None:
-		return HttpResponseRedirect('/accounts/faculty_view/')
+		if user is not None:
+			auth.login(request, user)
+		if user.student is not None:
+			return HttpResponseRedirect('/accounts/student_view/')
+		if user.faculty is not None:
+			return HttpResponseRedirect('/accounts/faculty_view/')
 	else:
 		return HttpResponseRedirect('/accounts/invalid/')
 
@@ -104,7 +130,7 @@ def auth_view(request):
 def logout_view(request):
 	"""Page for users which have just logged out"""
 	auth.logout(request)
-	return render_to_response('logout.html')
+	return render('logout.html')
 
 #Home pages for different users (and also bd login info)
 ###################################################################
@@ -113,20 +139,20 @@ def logout_view(request):
 @user_passes_test(lambda u: u.is_superuser or u.student is not None)
 def student_logged_in_view(request):
 	"""Homepage for logged in users"""
-	return render_to_response('loggedin.html',
+	return render('loggedin.html',
 		{'username': request.user.username})
 
 
 def invalid_login_view(request):
 	"""Page for users who have not successfully logged in"""
-	return render_to_response('invalid_login.html')
+	return render('invalid_login.html')
 
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.adminstaff is not None)
 def admin_home_view(request):
 	"""Homepage for logged in admin"""
-	return render_to_response('admin_loggedin.html',
+	return render('admin_loggedin.html',
 		{'username': request.user.username})
 
 #Views for doing the actual stuff that users want to do
@@ -143,7 +169,7 @@ def add_partners_view(request):
 		if '_add_another' in request.POST:
 			return HttpResponseRedirect('/admin/add_partner')
 		return HttpResponseRedirect('admin_home_page')
-	return render_to_response("add_partner.html",
+	return render("add_partner.html",
 		locals(),
 		context_instance=RequestContext(request))
 
@@ -158,6 +184,6 @@ def add_student_view(request):
 		if '_add_another' in request.POST:
 			return HttpResponseRedirect('/admin/add_student')
 		return HttpResponseRedirect('admin_home_page')
-	return render_to_response("add_student.html",
+	return render("add_student.html",
 		locals(),
 		context_instance=RequestContext(request))

@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import MultipleChoiceField
-from django.forms import Textarea, ModelForm, widgets
+from django.forms import Textarea, ModelForm, widgets, RadioSelect
 from .models import SubmitReport, Partner
 from django.db import models
 from django.contrib.auth.models import User
@@ -12,6 +12,7 @@ class SubmitReportForm(forms.ModelForm):
 		#exclude = ['submitter', 'status']
 		widgets = {
 			'summary': Textarea(attrs={'cols': 50, 'rows': 3}),
+			'service_type': RadioSelect(),
 		}
 
 		def clean(self):
