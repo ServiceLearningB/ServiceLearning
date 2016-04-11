@@ -113,15 +113,25 @@
 	height:60px;
 }
 
-.EZ_textinput, .EZ_Hoursform input[type="text"] {
+.EZ_textinput, .EZ_Hoursform input[type="text"], .EZ_Hoursform textarea {
   transition: all ease 0.5s;
 }
 .EZ_textinput:focus, .EZ_Hoursform input[type="text"]:focus {
 	box-shadow: 0px 0px 3px rgb(26,187,207) !important;
 	border-color:rgb(230, 230, 230);
+	outline:none;
+	transition: all ease 0.3s;
+}
+.EZ_Hoursform textarea:focus {
+	box-shadow: 0px 0px 3px rgb(26,187,207) !important;
+	outline:none;
 	transition: all ease 0.3s;
 }
 .EZ_textinput:hover, .EZ_Hoursform input[type="text"]:hover {
+	box-shadow: 0px 0px 1px rgb(26,187,207);
+	transition: all ease 0.5s;
+}
+.EZ_Hoursform textarea:hover {
 	box-shadow: 0px 0px 1px rgb(26,187,207);
 	transition: all ease 0.5s;
 }
@@ -148,6 +158,8 @@
 	position: relative;
 	float: left;
 	width: 100%;
+	list-style-type: none;
+	padding: 0px;
 }
 
 .EZ_Hoursform p {
@@ -165,7 +177,7 @@
 	padding-top: 3px;
 }
 
-.EZ_Hoursform p input, .EZ_Hoursform p select, .EZ_Hoursform p textarea {
+.EZ_Hoursform p input, .EZ_Hoursform p select, .EZ_Hoursform p textarea, .EZ_Hoursform .errorlist li {
 	position: relative;
 	float: right;
 	width: 75%;
@@ -183,13 +195,32 @@
 	float: left;
 	width:100%;
 	margin: auto;
-	min-height: 30px;
-	padding-top: 7px;
+	min-height: 0px;
+	padding-top: 6px;
+	padding-bottom:6px;
+	padding-right:12px;
+	padding-left:12px;
+	
 }
 
 .EZ_Hoursform p select:active, .EZ_Hoursform p select:focus {
 	box-shadow: 0px 0px 2px rgb(26,187,207);
+	outline:none;
 	transition: all 0.3s ease;
+}
+
+.EZ_Hoursform p textarea {
+	border: 1px #ccc solid;
+	border-radius: 4px;
+	resize:vertical;
+	padding-top: 6px;
+	padding-bottom:6px;
+	padding-left:12px;
+	padding-right:12px;
+}
+
+.EZ_Hoursform p textarea:focus {
+	outline:none;
 }
 
 .EZ_Hoursform p select {
